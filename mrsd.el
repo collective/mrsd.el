@@ -44,9 +44,26 @@
                                  (ido-completing-read "Instance: " instances))))))))
 
 
+(defun mrsd-i18n-build ()
+  "Run i18ndude build pot using mrs.developer"
+  (interactive)
+  (shell-command "mrsd i18ndude --build"))
+
+
+(defun mrsd-i18n-sync ()
+  "Run i18ndude sync using mrsd.developer"
+  (interactive)
+  (let ((output (shell-command-to-string "mrsd i18ndude --sync")))
+    (if (string-match "\/.*.po" output)
+        (find-file (match-string 0 output)))
+    (message output)))
+
+
 (setq mrsd-mode-map
       (let ((map (make-sparse-keymap)))
         (define-key map (kbd "C-c m r") 'mrsd-reload)
+        (define-key map (kbd "C-c m i") 'mrsd-i18n-build)
+        (define-key map (kbd "C-c m C-i") 'mrsd-i18n-sync)
         map
         ))
 
