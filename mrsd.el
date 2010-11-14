@@ -31,6 +31,24 @@
 
 (require 'json)
 
+(defgroup mrsd nil
+  "mrsd.el customization (mrs.developer)"
+  :group 'applications)
+
+(defcustom mrsd-graph-open t
+  "Open the graph file after creating graph"
+  :type 'boolean
+  :group 'mrsd)
+
+(defcustom mrsd-graph-open-command "open <file>"
+  "Command for opening a graph file."
+  :type 'string
+  :group 'mrsd)
+
+(defcustom mrsd-graph-filename "graph.pdf"
+  "Filename of the graph image."
+  :type 'string
+  :group 'mrsd)
 
 (defun mrsd-reload ()
   (interactive)
@@ -51,21 +69,41 @@
 
 
 (defun mrsd-i18n-sync ()
-  "Run i18ndude sync using mrsd.developer"
+  "Run i18ndude sync using mrs.developer"
   (interactive)
   (let ((output (shell-command-to-string "mrsd i18ndude --sync")))
     (if (string-match "\/.*.po" output)
         (find-file (match-string 0 output)))
     (message output)))
 
+(defun mrsd-dependency-graph ()
+  "Create a dependincy graph using mrs.developer"
+  (interactive)
+  (let* ((arg (ido-completing-read "Argument: " '("" " --follow" " --recursive")))
+         (cmd (concat "mrsd graph" arg " --filename=" mrsd-graph-filename
+                      " | grep -v 'WARNING:mrsd:'"))
+         (data (shell-command-to-string cmd)))
+    (if mrsd-graph-open
+        (shell-command (replace-regexp-in-string "<file>" mrsd-graph-filename
+                                                 mrsd-graph-open-command)))
+    (message data)))
 
-(setq mrsd-mode-map
-      (let ((map (make-sparse-keymap)))
-        (define-key map (kbd "C-c m r") 'mrsd-reload)
-        (define-key map (kbd "C-c m i") 'mrsd-i18n-build)
-        (define-key map (kbd "C-c m C-i") 'mrsd-i18n-sync)
-        map
-        ))
 
+(defvar mrsd-mode-map (make-sparse-keymap)
+  "Keymap for mrsd.")
+
+(define-prefix-command 'mrsd 'mrsd-map)
+(define-key mrsd-mode-map (kbd "C-c m") mrsd-map)
+
+(define-key mrsd-mode-map (kbd "C-c m r") 'mrsd-reload)
+(define-key mrsd-mode-map (kbd "C-c m i") 'mrsd-i18n-build)
+(define-key mrsd-mode-map (kbd "C-c m C-i") 'mrsd-i18n-sync)
+(define-key mrsd-mode-map (kbd "C-c m d") 'mrsd-dependency-graph)
+
+(define-minor-mode mrsd-mode
+  "Toggle mrsd mode."
+  :global t
+  :keymap mrsd-mode-map
+  :lighter " mrsd")
 
 (provide 'mrsd)
