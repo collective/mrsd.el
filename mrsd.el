@@ -2,8 +2,8 @@
 
 ;; Copyright (C) 2010 Jonas Baumann
 
-;; Author: Jonas Baumann, http://github.com/jone
-;; URL: http://github.com/collective/mrsd.el
+;; Author: Jonas Baumann, https://github.com/jone
+;; URL: https://github.com/collective/mrsd.el
 ;; Version: 0.1
 ;; Created: 17 October 2010
 ;; Keywords: emacs mrs developer
